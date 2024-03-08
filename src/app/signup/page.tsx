@@ -8,50 +8,65 @@ import * as Yup from 'yup'
 
 export default function Signup(){
 
-    const validationSchema = Yup.object().shape({
-        username:Yup.string().required('username is required').min(2,'username must be at least 2 characters'),
-        password:Yup.string().required("Password is required").min(6)
-    })
+    const [errMessage, setErrMessage] = useState('')
     
+    const validationSchema = Yup.object().shape({
+        username: Yup.string()
+        .required('Username is required')
+        .min(2),
+        password: Yup.string()
+        .required('Password is required')
+        .min(6),
+        confirmPassword:Yup.string().required('Confirm password is required')
+        .oneOf([Yup.ref('password')],'Passwords do not match')
+    })
+
     const formOptions = {resolver:yupResolver(validationSchema)}
-    const {register,handleSubmit, reset, formState} = useForm(formOptions)
+
+    const {register, handleSubmit, reset, formState} = useForm(formOptions)
+    const {errors} = formState
+     
     const submitForm = async(data,e) => {
         const formData = JSON.stringify(data)
         try{
-            const req = await fetch('http://localhost:3001/api/signup', {
-                method:'post',
-            body:formData,
-        headers:{'Content-type':'application/json'}})
-        const myJSON = await req.json()
-        if(req.status !== 200){
-            console.log('err')
+            
+            const req = await fetch('http://localhost:3001/api/signup',{
+                 
+                method:'POST',
+                body:formData,
+                headers:{
+                    'Content-Type':'application/json'
+                },
+            })
+                const file = await req.json()
+          if(req.status !== 200){
+                setErrMessage(file.errors[0])
+                console.log(file.message)
+                return
+            }    
+            reset()
+            console.log(file.message)
             return
-        }
-        await localStorage.setItem('token',myJSON.token)
-        await localStorage.setItem('username',myJSON.body.username)
-        await localStorage.setItem('id',myJSON.body._id)
-        }
-        catch(err){
+        }catch(err){
+            console.log(onmessage)
             console.log(err)
         }
     }
-
-
  
     return (
         <main>
-            <form onSubmit={submitForm}>
+            <form onSubmit={handleSubmit(submitForm)}>
                 <div>
                 <label htmlFor="username">Username:</label>
-                <input type="text" name="username" id="user" />
+                <input type="text" /* name="username" */ id="user" {...register('username')}/>
                 </div>
                 <div>
                 <label htmlFor="password">Password:</label>
-                <input type="password" name="password" id="" />
+                <input type="password" /* name="password" */ id="" {...register('password')}/>
                 </div>
                 <div>
-                <label htmlFor="confirm">Confirm Password:</label>
-                <input type="password" name="confirm" id="" />
+                <label htmlFor="confirm-password">Confirm Password:</label>
+                <input type="password" /* name="confirmPassword" */ id="" {...register('confirmPassword')}/>
                 </div>
                 <button type="submit">Submit</button>
             </form>

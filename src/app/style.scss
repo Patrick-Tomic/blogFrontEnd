@@ -1,0 +1,21 @@
+html, body{
+     margin: 0;
+     padding: 0;
+     background-color: black;
+}
+
+main{
+    background-color: white;
+    display: flex;
+    margin: 10px;
+    height: 50vh;
+    justify-content: center;
+    form{
+        border: solid black 1px;
+        width: 50vw;
+        align-self: center;
+        input{
+            border: 1px black solid;
+        };
+    }
+}
